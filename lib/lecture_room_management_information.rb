@@ -8,8 +8,8 @@ class LectureRoomManagementInformation < Data.define(:date, :day_of_the_week, :t
         unless day_of_the_week.is_a?(Symbol)
             raise ArgumentError, "day_of_the_week must be a Symbol"
         end
-        unless term.is_a?(String)
-            raise ArgumentError, "term must be a String"
+        unless term.is_a?(Integer)
+            raise ArgumentError, "term must be an Integer"
         end
         unless periods.is_a?(Array) && periods.all? { |p| p.is_a?(Symbol) }
             raise ArgumentError, "periods must be an Array of Symbols"
