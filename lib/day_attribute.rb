@@ -17,8 +17,8 @@ class DayAttribute < Data.define(:day_of_the_week_changes, :is_makeup_class, :is
         unless [true, false].include?(is_holiday)
             raise ArgumentError, "is_holiday must be a Boolean"
         end
-        unless comments.is_a?(String) or comments.nil?
-            raise ArgumentError, "comments must be a String or nil"
+        unless comments.is_a?(Array) && comments.all? { |c| c.is_a?(String) } || comments.nil?
+            raise ArgumentError, "comments must be an Array of Strings or nil"
         end
 
         super(day_of_the_week_changes: day_of_the_week_changes, is_makeup_class: is_makeup_class, is_exam_period: is_exam_period, is_public_holiday: is_public_holiday, is_holiday: is_holiday, comments: comments)
