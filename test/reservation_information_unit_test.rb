@@ -1,0 +1,89 @@
+require_relative '../lib/reservation_information'
+require 'minitest/autorun'
+
+class ReservationInformationTest < Minitest::Test
+    def setup
+        @valid_date = Date.new(2024, 6, 1)
+        @valid_subject = "Mathematics"
+        @valid_periods = [:p1, :p2]
+        @valid_user = "John Doe"
+        @valid_room_names = ["Room A"]
+    end
+
+    def test_valid_initialization
+        info = ReservationInformation.new(
+            date: @valid_date,
+            subject: @valid_subject,
+            periods: @valid_periods,
+            user: @valid_user,
+            room_names: @valid_room_names
+        )
+        assert_equal @valid_date, info.date
+        assert_equal @valid_subject, info.subject
+        assert_equal @valid_periods, info.periods
+        assert_equal @valid_user, info.user
+        assert_equal @valid_room_names, info.room_names
+    end
+
+    def test_invalid_date
+        assert_raises(ArgumentError) do
+            ReservationInformation.new(
+                date: "2024-06-01",
+                subject: @valid_subject,
+                periods: @valid_periods,
+                user: @valid_user,
+                room_names: @valid_room_names
+            )
+        end
+    end
+
+    def test_invalid_subject
+        assert_raises(ArgumentError) do
+            ReservationInformation.new(
+                date: @valid_date,
+                subject: 123,
+                periods: @valid_periods,
+                user: @valid_user,
+                room_names: @valid_room_names
+            )
+        end
+    end
+
+    def test_invalid_periods
+        assert_raises(ArgumentError) do
+            ReservationInformation.new(
+                date: @valid_date,
+                subject: @valid_subject,
+                periods: "not an array",
+                user: @valid_user,
+                room_names: @valid_room_names
+            )
+        end
+    end
+
+    def test_invalid_user
+        assert_raises(ArgumentError) do
+            ReservationInformation.new(
+                date: @valid_date,
+                subject: @valid_subject,
+                periods: @valid_periods,
+                user: 123,
+                room_names: @valid_room_names
+            )
+        end
+    end
+
+    def test_invalid_room_names
+        assert_raises(ArgumentError) do
+            ReservationInformation.new(
+                date: @valid_date,
+                subject: @valid_subject,
+                periods: @valid_periods,
+                user: @valid_user,
+                room_namess: 123
+            )
+        end
+    end
+end
+
+    

@@ -1,0 +1,112 @@
+require_relative '../lib/timetable_information'
+require 'minitest/autorun'
+
+class TimetableInformationTest < Minitest::Test
+    def setup
+        @valid_date = Date.new(2024, 6, 1)
+        @valid_day_of_the_week = :mon
+        @valid_term = 1
+        @valid_periods = [:p1, :p2]
+        @valid_room_names = ["Room A"]
+        @valid_subject = "Mathematics"
+        @valid_user = "John Doe"
+        @valid_comment = "No comments"
+    end
+
+    def test_valid_initialization
+        info = TimetableInformation.new(
+            subject: @valid_subject,
+            term: @valid_term,
+            day_of_the_week: @valid_day_of_the_week,
+            periods: @valid_periods,
+            user: @valid_user,
+            room_names: @valid_room_names
+        )
+        assert_equal @valid_subject, info.subject
+        assert_equal @valid_term, info.term
+        assert_equal @valid_day_of_the_week, info.day_of_the_week
+        assert_equal @valid_periods, info.periods
+        assert_equal @valid_user, info.user
+        assert_equal @valid_room_names, info.room_names
+    end
+
+    def test_invalid_subject
+        assert_raises(ArgumentError) do
+            TimetableInformation.new(
+                subject: 123,
+                term: @valid_term,
+                day_of_the_week: @valid_day_of_the_week,
+                periods: @valid_periods,
+                user: @valid_user,
+                room_names: @valid_room_names
+            )
+        end
+    end
+
+    def test_invalid_term
+        assert_raises(ArgumentError) do
+            TimetableInformation.new(
+                subject: @valid_subject,
+                term: "First Term",
+                day_of_the_week: @valid_day_of_the_week,
+                periods: @valid_periods,
+                user: @valid_user,
+                room_names: @valid_room_names
+            )
+        end
+    end
+
+    def test_invalid_day_of_the_week
+        assert_raises(ArgumentError) do
+            TimetableInformation.new(
+                subject: @valid_subject,
+                term: @valid_term,
+                day_of_the_week: "Monday",
+                periods: @valid_periods,
+                user: @valid_user,
+                room_names: @valid_room_names
+            )
+        end
+    end
+
+    def test_invalid_periods
+        assert_raises(ArgumentError) do
+            TimetableInformation.new(
+                subject: @valid_subject,
+                term: @valid_term,
+                day_of_the_week: @valid_day_of_the_week,
+                periods: "first, second",
+                user: @valid_user,
+                room_names: @valid_room_names
+            )
+        end
+    end
+
+    def test_invalid_user
+        assert_raises(ArgumentError) do
+            TimetableInformation.new(
+                subject: @valid_subject,
+                term: @valid_term,
+                day_of_the_week: @valid_day_of_the_week,
+                periods: @valid_periods,
+                user: 123,
+                room_names: @valid_room_names
+            )
+        end
+    end
+
+    def test_invalid_room_names
+        assert_raises(ArgumentError) do
+            TimetableInformation.new(
+                subject: @valid_subject,
+                term: @valid_term,
+                day_of_the_week: @valid_day_of_the_week,
+                periods: @valid_periods,
+                user: @valid_user,
+                room_names: 123
+            )
+        end
+    end
+end
+
+    
