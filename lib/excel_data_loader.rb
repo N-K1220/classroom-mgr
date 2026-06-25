@@ -1,7 +1,7 @@
 require 'rubyXL'
 
 class ExcelDataLoader
-  def load_academic_calendar_xlsx_file(directory_name)
+  def self.load_academic_calendar_xlsx_file(directory_name)
     unless directory_name.is_a?(String)
       raise ArgumentError, 'directory_name must be a String.'
     end
@@ -19,7 +19,7 @@ class ExcelDataLoader
     return workbook
   end
 
-  def load_timetable_xlsx_file(directory_name)
+  def self.load_timetable_xlsx_file(directory_name)
     unless directory_name.is_a?(String)
       raise ArgumentError, 'directory_name must be a String.'
     end
@@ -37,7 +37,7 @@ class ExcelDataLoader
     return workbook
   end
 
-  def load_reservation_xlsx_file(directory_name)
+  def self.load_reservation_xlsx_file(directory_name)
     unless directory_name.is_a?(String)
       raise ArgumentError, 'directory_name must be a String.'
     end
@@ -55,7 +55,7 @@ class ExcelDataLoader
     return workbook
   end
 
-  def load_managed_lecture_room_xlsx_file
+  def self.load_managed_lecture_room_xlsx_file
     directory_path = 'data/管理対象講義室'
 
     xlsx_files = Dir.glob(File.join(directory_path, '*.xlsx'))
