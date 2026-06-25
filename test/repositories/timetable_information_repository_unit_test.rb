@@ -42,16 +42,10 @@ class TimetableInformationRepositoryTest < Minitest::Test
         assert_equal [@timetable_a], repository.find_all
     end
 
-    def test_add_remove_and_replace_all
+    def test_replace_all
         repository = TimetableInformationRepository.new
-        repository.add(@timetable_a)
-        repository.add(@timetable_b)
-        assert_equal [@timetable_a, @timetable_b], repository.find_all
-
-        repository.remove(@timetable_a)
-        assert_equal [@timetable_b], repository.find_all
-
         repository.replace_all([@timetable_a])
+
         assert_equal [@timetable_a], repository.find_all
     end
 
@@ -59,13 +53,6 @@ class TimetableInformationRepositoryTest < Minitest::Test
         assert_raises(ArgumentError) do
             TimetableInformationRepository.new(timetable_informations: 'not an array')
         end
-    end
-
-    def test_invalid_add_and_remove_arguments
-        repository = TimetableInformationRepository.new
-
-        assert_raises(ArgumentError) { repository.add('not timetable info') }
-        assert_raises(ArgumentError) { repository.remove('not timetable info') }
     end
 
     def test_replace_all_with_empty_array

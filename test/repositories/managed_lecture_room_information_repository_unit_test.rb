@@ -27,16 +27,10 @@ class ManagedLectureRoomInformationRepositoryTest < Minitest::Test
         assert_equal [@room_a], repository.find_all
     end
 
-    def test_add_remove_and_replace_all
+    def test_replace_all
         repository = ManagedLectureRoomInformationRepository.new
-        repository.add(@room_a)
-        repository.add(@room_b)
-        assert_equal [@room_a, @room_b], repository.find_all
-
-        repository.remove(@room_a)
-        assert_equal [@room_b], repository.find_all
-
         repository.replace_all([@room_a])
+
         assert_equal [@room_a], repository.find_all
     end
 
@@ -44,13 +38,6 @@ class ManagedLectureRoomInformationRepositoryTest < Minitest::Test
         assert_raises(ArgumentError) do
             ManagedLectureRoomInformationRepository.new(managed_lecture_room_informations: 'not an array')
         end
-    end
-
-    def test_invalid_add_and_remove_arguments
-        repository = ManagedLectureRoomInformationRepository.new
-
-        assert_raises(ArgumentError) { repository.add('not room info') }
-        assert_raises(ArgumentError) { repository.remove('not room info') }
     end
 
     def test_replace_all_with_empty_array
