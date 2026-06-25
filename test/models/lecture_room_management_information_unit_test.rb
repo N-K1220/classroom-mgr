@@ -176,7 +176,7 @@ class LectureRoomManagementInformationTest < Minitest::Test
             day_of_the_week: @valid_day_of_the_week,
             term: @valid_term,
             periods: [:p2, :p3],
-            room_name: "Room B",
+            room_name: @valid_room_name,
             subject: @valid_subject,
             user: @valid_user,
             comment: @valid_comment
@@ -191,6 +191,36 @@ class LectureRoomManagementInformationTest < Minitest::Test
             day_of_the_week: @valid_day_of_the_week,
             term: @valid_term,
             periods: [:p3, :p4],
+            room_name: @valid_room_name,
+            subject: @valid_subject,
+            user: @valid_user,
+            comment: @valid_comment
+        )
+
+        assert_equal [], @valid_info.conflicting_periods_with(lecture_room_management_information: other)
+    end
+
+    def test_conflicting_periods_with_different_date
+        other = LectureRoomManagementInformation.new(
+            date: Date.new(2024, 6, 2),
+            day_of_the_week: @valid_day_of_the_week,
+            term: @valid_term,
+            periods: [:p2, :p3],
+            room_name: @valid_room_name,
+            subject: @valid_subject,
+            user: @valid_user,
+            comment: @valid_comment
+        )
+
+        assert_equal [], @valid_info.conflicting_periods_with(lecture_room_management_information: other)
+    end
+
+    def test_conflicting_periods_with_different_room_name
+        other = LectureRoomManagementInformation.new(
+            date: @valid_date,
+            day_of_the_week: @valid_day_of_the_week,
+            term: @valid_term,
+            periods: [:p2, :p3],
             room_name: "Room B",
             subject: @valid_subject,
             user: @valid_user,
@@ -206,7 +236,7 @@ class LectureRoomManagementInformationTest < Minitest::Test
             day_of_the_week: @valid_day_of_the_week,
             term: @valid_term,
             periods: @valid_periods.dup,
-            room_name: "Room B",
+            room_name: @valid_room_name,
             subject: @valid_subject,
             user: @valid_user,
             comment: @valid_comment
@@ -221,5 +251,3 @@ class LectureRoomManagementInformationTest < Minitest::Test
         end
     end
 end
-
-    

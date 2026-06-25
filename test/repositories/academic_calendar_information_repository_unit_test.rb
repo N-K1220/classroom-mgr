@@ -63,6 +63,31 @@ class AcademicCalendarInformationRepositoryTest < Minitest::Test
         assert_equal [@monday_info], repository.find_by_day_of_the_week(:mon)
     end
 
+    def test_find_by_day_of_the_week_uses_day_attribute_change_when_present
+        changed_day_attribute = DayAttribute.new(
+            day_of_the_week_changes: :wed,
+            is_makeup_class: false,
+            is_exam_period: false,
+            is_public_holiday: false,
+            is_holiday: false,
+            comments: nil
+        )
+
+        changed_info = AcademicCalendarInformation.new(
+            date: Date.new(2024, 6, 5),
+            day_of_the_week: :tue,
+            term: 1,
+            day_attribute: changed_day_attribute
+        )
+
+        repository = AcademicCalendarInformationRepository.new(
+            academic_calendar_informations: [changed_info]
+        )
+
+        assert_equal [changed_info], repository.find_by_day_of_the_week(:wed)
+        assert_equal [], repository.find_by_day_of_the_week(:tue)
+    end
+
     def test_find_by_day_of_the_week_with_multiple_matches
         another_monday_info = AcademicCalendarInformation.new(
             date: Date.new(2024, 6, 10),
