@@ -1,43 +1,52 @@
 require_relative "input_parser"
 require_relative "parsed_input"
-require_relative "commad_factory"
-require_relative "error_handler"
+# require_relative "command_factory"
+# require_relative "error_handler"
 
 class Application
     def initialize
         @command_factory = CommandFactory.new
-        @error_handler = ErrorHandler.new
+        # @error_handler = ErrorHandler.new
     end
 
     # アプリケーションの処理開始
     def start_system_loop # quitコマンドが実行されるまでループ
         loop do
             input = wait_input # 利用者からの入力を取得
-            # stop_system if input.nil?
 
             # 入力内容を解析
             parsed_input = InputParser.parse(input)
 
+            if parsed_input.is_a?(Integer)
+                # @error_handler.print_error(parsed_input)
+              
+                ## テスト用
+                case parsed_input
+                when 1
+                    # 存在しないコマンドの場合
+                    puts "エラー：無効なコマンドです．"
+                    puts "マニュアルを参照し，有効なコマンドを入力してください．"            
+                when 2
+                    # 存在しないオプションの場合
+                    puts "エラー：無効なオプションです．"
+                    puts "マニュアルを参照し，有効なオプションを入力してください．"
+                when 3
+                    # オプションに引数がない場合
+                    puts "エラー：オプションの引数が指定されていません．" 
+                    puts "マニュアルを参照し，オプションに必要な引数を指定してください．"
+                end
+            
+                next
+            end 
+
             # コマンドのインスタンスを作成
             command = @command_factory.create(parsed_input)
-
-            # 存在しないコマンドが入力された場合
-            if command.nil?
-                error_number = 1 # 仮のエラー番号
-                @error_handler.print_error(
-                    error_number
-                )
-                puts "エラー：有効なコマンドを入力してください．" # 仮の出力
-                next
-            end
-
             command_result = command.execute # コマンドを実行
 
             # コマンドに失敗した場合
             unless command_result.success?
-                @error_handler.print_error(
-                    command_result.error_number
-                )
+                puts "コマンドの実行に失敗しました" 
+                # @error_handler.print_error(command_result.error_number)
             end
 
             stop_system if command_result.exit_flag # exit_flagが立っていたら終了
@@ -62,57 +71,54 @@ class Application
     end
 end
 
-# # ここから下は動作確認用の仮クラス
-# # 本実装では、それぞれ別のファイルに分割する
+## ここから下は動作確認用の仮実装
+class CommandFactory
+    def create(parsed_input)
+        case parsed_input.command_name
+        when "read", "write", "create", "print", "select"
+          TestCommand.new(parsed_input)
+        
+        when "quit"
+        TestQuitCommand.new
+        end
+    end
+end
 
-# class CommandFactory
-#     def create(parsed_input)
-#       case parsed_input.command_name
-#       when "read", "write", "create", "print"
-#         TestCommand.new(parsed_input)
-#       when "quit"
-#         TestQuitCommand.new
-#       else
-#         nil
-#       end
-#     end
-#   end
-
-# class TestCommand
-#     def initialize(parsed_input)
-#       @parsed_input = parsed_input
-#     end
+class TestCommand
+    def initialize(parsed_input)
+        @parsed_input = parsed_input
+    end
   
-#     def execute
-#       puts "コマンド名：#{@parsed_input.command_name}"
-#       puts "引数：#{@parsed_input.arguments.inspect}"
-#       puts "オプション：#{@parsed_input.options.inspect}"
+    def execute
+        puts "コマンド名：#{@parsed_input.command_name}"
+        puts "引数：#{@parsed_input.arguments.inspect}"
+        puts "オプション：#{@parsed_input.options.inspect}"
       
-#       CommandResult.new(
-#         success: true,
-#         exit_flag: false
-#       )
-#     end
-#   end
+        CommandResult.new(
+          success: true,
+          exit_flag: false
+        )
+    end
+end
   
-#   class TestQuitCommand
-#     def execute
-#       CommandResult.new(
-#         success: true,
-#         exit_flag: true
-#       )
-#     end
-#   end
+class TestQuitCommand
+    def execute
+        CommandResult.new(
+          success: true,
+          exit_flag: true
+        )
+    end
+end
   
-#   class CommandResult
-#     attr_reader :exit_flag
+class CommandResult
+    attr_reader :exit_flag
   
-#     def initialize(success:, exit_flag:)
-#       @success = success
-#       @exit_flag = exit_flag
-#     end
+    def initialize(success:, exit_flag:)
+        @success = success
+        @exit_flag = exit_flag
+    end
   
-#     def success?
-#       @success
-#     end
-#   end
+    def success?
+        @success
+    end
+end

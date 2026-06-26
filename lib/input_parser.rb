@@ -2,6 +2,15 @@ require "optparse"
 require_relative "parsed_input"
 
 class InputParser
+    COMMAND_NAMES = [
+        "read",
+        "select",
+        "create",
+        "print",
+        "write",
+        "quit"
+    ].freeze
+
     def self.parse(input)
         # (1) inputが文字列であるか確認する
         unless input.is_a?(String)
@@ -14,11 +23,24 @@ class InputParser
         command_name = tokens.shift # (4) 先頭要素からコマンド名を取得する
         options = {}
 
+        # 存在するコマンドか確認
+        unless COMMAND_NAMES.include?(command_name)
+            return 1 # マジックナンバーで代用
+        end
+
         # (5) コマンドに応じてオプションを登録する
         register_options(option_parser, command_name, options)
 
         # (6) オプションを解析する
-        option_parser.parse!(tokens)
+        begin
+            option_parser.parse!(tokens)
+        rescue OptionParser::InvalidOption
+            # コマンドに存在しないオプションが入力された場合
+            return 2 # マジックナンバーで代用
+        rescue OptionParser::MissingArgument
+            # オプションの引数が入力されていない場合
+            return 3 # マジックナンバーで代用
+        end
 
         # parse!後にtokensへ残っている要素が引数になる
         arguments = tokens
