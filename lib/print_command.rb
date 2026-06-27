@@ -22,7 +22,7 @@ class PrintCommand
   def execute
     lecture_room_management_informations = @lecture_room_management_information_repository.find_all
     if lecture_room_management_informations.empty?
-      return false, false, -1 # ToCheck: CommandResultの返却処理はこの形式で返却してOK？
+      return false, false, -1
     end
 
     if @finding_date != nil
@@ -35,7 +35,7 @@ class PrintCommand
 
     print_all(lecture_room_management_informations)
 
-    return false, true, 0 # ToCheck: CommandResultの返却処理はこの形式で返却してOK？
+    return false, true, 0
   end
 
   def print_all(lecture_room_management_informations)
