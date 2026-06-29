@@ -10,7 +10,7 @@ class ReservationParser
 
   def initialize(worksheet)
     unless worksheet.is_a?(RubyXL::Worksheet)
-      raise ArgumentError, 'Worksheet must be a RubyXL::Worksheet.'
+      raise TypeError, 'Worksheet must be a RubyXL::Worksheet.'
     end
 
     @worksheet = worksheet
@@ -41,7 +41,7 @@ class ReservationParser
 
   def parse_entry(target_row)
     unless target_row.is_a?(RubyXL::Row)
-      raise ArgumentError, 'target_row must be a Ruby::Row.'
+      raise TypeError, 'target_row must be a Ruby::Row.'
     end
 
     date = Date.strptime(target_row[DATE].value.to_s, "%Y%m%d")
@@ -63,10 +63,10 @@ class ReservationParser
 
   def generate_period_symbols(start_period, end_period)
     unless start_period.is_a?(Integer)
-      raise ArgumentError, 'start_period must be a Integer.'
+      raise TypeError, 'start_period must be a Integer.'
     end
     unless end_period.is_a?(Integer)
-      raise ArgumentError, 'end_period must be a Integer.'
+      raise TypeError, 'end_period must be a Integer.'
     end
 
     ordered_periods = PeriodMaster::PERIOD_SYMBOLS
@@ -79,7 +79,7 @@ class ReservationParser
 
   def parse_room_name(room_name)
     unless room_name.is_a?(String)
-      raise ArgumentError, 'room_name must be a String.'
+      raise TypeError, 'room_name must be a String.'
     end
 
     return room_name.split('，')
