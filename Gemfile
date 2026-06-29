@@ -6,3 +6,5 @@ source "https://rubygems.org"
 
 gem "rubyXL"
 gem "unicode-display_width"
+gem "tty-prompt"
+gem "minitest"
