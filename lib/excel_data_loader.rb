@@ -16,7 +16,7 @@ class ExcelDataLoader
     
   def self.load_academic_calendar_xlsx_file(directory_name)
     unless directory_name.is_a?(String)
-      raise ArgumentError, 'directory_name must be a String.'
+      raise TypeError, 'directory_name must be a String.'
     end
 
     load_xlsx_file("data/#{directory_name}/学年暦")
@@ -24,7 +24,7 @@ class ExcelDataLoader
 
   def self.load_timetable_xlsx_file(directory_name)
     unless directory_name.is_a?(String)
-      raise ArgumentError, 'directory_name must be a String.'
+      raise TypeError, 'directory_name must be a String.'
     end
 
     load_xlsx_file("data/#{directory_name}/時間割")
@@ -32,7 +32,7 @@ class ExcelDataLoader
 
   def self.load_reservation_xlsx_file(directory_name)
     unless directory_name.is_a?(String)
-      raise ArgumentError, 'directory_name must be a String.'
+      raise TypeError, 'directory_name must be a String.'
     end
 
     load_xlsx_file("data/#{directory_name}/予約")
