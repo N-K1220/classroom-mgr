@@ -5,13 +5,13 @@ class PrintCommand
     finding_subject
     )
     unless lecture_room_management_information_repository.is_a?(LectureRoomManagementInformationRepository)
-      raise ArgumentError, 'lecture_room_management_information_repository must be a LectureRoomManagementInformationRepository.'
+      raise TypeError, 'lecture_room_management_information_repository must be a LectureRoomManagementInformationRepository.'
     end
     unless finding_date.is_a?(String) || finding_date.nil?
-      raise ArgumentError, 'finding_date must be a String.'
+      raise TypeError, 'finding_date must be a String.'
     end
     unless finding_subject.is_a?(String) || finding_subject.nil?
-      raise ArgumentError, 'finding_subject must be a String.'
+      raise TypeError, 'finding_subject must be a String.'
     end
 
     @lecture_room_management_information_repository = lecture_room_management_information_repository
@@ -22,7 +22,7 @@ class PrintCommand
   def execute
     lecture_room_management_informations = @lecture_room_management_information_repository.find_all
     if lecture_room_management_informations.empty?
-      return false, false, -1
+      return CommandResult.new(false, false, 16)
     end
 
     if @finding_date != nil
@@ -35,7 +35,7 @@ class PrintCommand
 
     print_all(lecture_room_management_informations)
 
-    return false, true, 0
+    return CommandResult.new(false, true, 0)
   end
 
   def print_all(lecture_room_management_informations)
