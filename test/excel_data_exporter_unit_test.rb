@@ -12,7 +12,7 @@ class ExcelDataExporterTest < Minitest::Test
     File.delete(@output_file_path) if File.exist?(@output_file_path)
   end
 
-  def test_valid_initialization
+  def test_new_returns_excel_data_exporter
     assert_instance_of ExcelDataExporter, ExcelDataExporter.new
   end
 

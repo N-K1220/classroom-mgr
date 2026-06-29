@@ -4,6 +4,9 @@ require 'rubyXL'
 class ExcelDataExporter
   OUTPUT_DIRECTORY = File.expand_path('../output', __dir__)
 
+  def initialize
+  end
+
   def export(workbook, file_name)
     unless workbook.is_a?(RubyXL::Workbook)
       raise TypeError, 'workbook must be a RubyXL::Workbook.'
