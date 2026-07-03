@@ -11,7 +11,7 @@ class InteractiveConflictResolutionService
     def initialize(
         lecture_room_management_information_repository,
         interactive_menu,
-        managed_lecture_room_information_repository = nil
+        managed_lecture_room_information_repository
     )
         unless lecture_room_management_information_repository.is_a?(LectureRoomManagementInformationRepository)
             raise TypeError, "lecture_room_management_information_repository must be a LectureRoomManagementInformationRepository"
@@ -19,8 +19,7 @@ class InteractiveConflictResolutionService
         unless interactive_menu.is_a?(InteractiveMenu)
             raise TypeError, "interactive_menu must be an InteractiveMenu"
         end
-        unless managed_lecture_room_information_repository.nil? ||
-               managed_lecture_room_information_repository.is_a?(ManagedLectureRoomInformationRepository)
+        unless managed_lecture_room_information_repository.is_a?(ManagedLectureRoomInformationRepository)
             raise TypeError, "managed_lecture_room_information_repository must be a ManagedLectureRoomInformationRepository"
         end
 
@@ -130,8 +129,6 @@ class InteractiveConflictResolutionService
     end
 
     def managed_lecture_room_informations
-        return nil if @managed_lecture_room_information_repository.nil?
-
         @managed_lecture_room_information_repository.find_all
     end
 

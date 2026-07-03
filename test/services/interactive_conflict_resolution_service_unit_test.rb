@@ -47,7 +47,7 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
     def test_valid_initialization
         repository = LectureRoomManagementInformationRepository.new
         menu = FakeInteractiveMenu.new(0)
-        service = InteractiveConflictResolutionService.new(repository, menu)
+        service = InteractiveConflictResolutionService.new(repository, menu, managed_repository)
 
         assert_instance_of InteractiveConflictResolutionService, service
     end
@@ -56,8 +56,9 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
         repository = LectureRoomManagementInformationRepository.new
         menu = FakeInteractiveMenu.new(0)
 
-        assert_raises(TypeError) { InteractiveConflictResolutionService.new('not repository', menu) }
-        assert_raises(TypeError) { InteractiveConflictResolutionService.new(repository, 'not menu') }
+        assert_raises(TypeError) { InteractiveConflictResolutionService.new('not repository', menu, managed_repository) }
+        assert_raises(TypeError) { InteractiveConflictResolutionService.new(repository, 'not menu', managed_repository) }
+        assert_raises(TypeError) { InteractiveConflictResolutionService.new(repository, menu, nil) }
         assert_raises(TypeError) { InteractiveConflictResolutionService.new(repository, menu, 'not managed repository') }
     end
 
@@ -78,7 +79,7 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
             ]
         )
         menu = FakeInteractiveMenu.new(0)
-        service = InteractiveConflictResolutionService.new(repository, menu)
+        service = InteractiveConflictResolutionService.new(repository, menu, managed_repository)
         conflict = Conflict.new(
             room_name: 'Room A',
             date: Date.new(2024, 6, 1),
@@ -107,7 +108,7 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
     def test_resolve_conflict_invalid_argument
         repository = LectureRoomManagementInformationRepository.new
         menu = FakeInteractiveMenu.new(0)
-        service = InteractiveConflictResolutionService.new(repository, menu)
+        service = InteractiveConflictResolutionService.new(repository, menu, managed_repository)
 
         assert_raises(TypeError) { service.resolve_conflict('not conflict') }
     end
@@ -117,7 +118,7 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
             lecture_room_management_informations: [@information, @conflicting_information]
         )
         menu = FakeInteractiveMenu.new(-1)
-        service = InteractiveConflictResolutionService.new(repository, menu)
+        service = InteractiveConflictResolutionService.new(repository, menu, managed_repository)
         conflict = Conflict.new(
             room_name: 'Room A',
             date: Date.new(2024, 6, 1),
@@ -134,7 +135,7 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
             lecture_room_management_informations: [@information, @conflicting_information]
         )
         menu = FakeInteractiveMenu.new(2)
-        service = InteractiveConflictResolutionService.new(repository, menu)
+        service = InteractiveConflictResolutionService.new(repository, menu, managed_repository)
         conflict = Conflict.new(
             room_name: 'Room A',
             date: Date.new(2024, 6, 1),
@@ -165,7 +166,7 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
             lecture_room_management_informations: [information, conflicting_information]
         )
         menu = FakeInteractiveMenu.new(0)
-        service = InteractiveConflictResolutionService.new(repository, menu)
+        service = InteractiveConflictResolutionService.new(repository, menu, managed_repository)
         conflict = Conflict.new(
             room_name: 'Room A',
             date: Date.new(2024, 6, 1),
@@ -199,7 +200,7 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
             lecture_room_management_informations: [information, conflicting_information]
         )
         menu = FakeInteractiveMenu.new(0)
-        service = InteractiveConflictResolutionService.new(repository, menu)
+        service = InteractiveConflictResolutionService.new(repository, menu, managed_repository)
         conflict = Conflict.new(
             room_name: 'Room A',
             date: Date.new(2024, 6, 1),
@@ -232,7 +233,7 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
             lecture_room_management_informations: [information, conflicting_information]
         )
         menu = FakeInteractiveMenu.new(0)
-        service = InteractiveConflictResolutionService.new(repository, menu)
+        service = InteractiveConflictResolutionService.new(repository, menu, managed_repository)
         conflict = Conflict.new(
             room_name: 'Room A',
             date: Date.new(2024, 6, 1),
@@ -259,5 +260,9 @@ class InteractiveConflictResolutionServiceTest < Minitest::Test
             user: user,
             comment: comment
         )
+    end
+
+    def managed_repository
+        ManagedLectureRoomInformationRepository.new
     end
 end

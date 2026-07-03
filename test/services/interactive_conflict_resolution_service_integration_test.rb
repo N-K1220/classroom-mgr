@@ -114,36 +114,6 @@ class InteractiveConflictResolutionServiceIntegrationTest < Minitest::Test
         assert_equal '', output
     end
 
-    def test_execute_without_managed_repository_resolves_conflicts
-        information = lecture_room_management_information(
-            room_name: 'Room A',
-            periods: [:p1, :p2],
-            subject: 'Mathematics',
-            user: 'John Doe',
-            comment: 'First booking'
-        )
-        conflicting_information = lecture_room_management_information(
-            room_name: 'Room A',
-            periods: [:p2, :p3],
-            subject: 'Physics',
-            user: 'Jane Doe',
-            comment: 'Second booking'
-        )
-        repository = LectureRoomManagementInformationRepository.new(
-            lecture_room_management_informations: [information, conflicting_information]
-        )
-        menu = IntegrationFakeInteractiveMenu.new([0])
-        service = InteractiveConflictResolutionService.new(repository, menu)
-
-        output = capture_io { service.execute }.first
-
-        assert_equal [information], repository.find_all
-        assert_equal 1, menu.options.length
-        assert_includes output, '講義室の利用に1件の競合が見つかりました．'
-        assert_includes output, '科目名・予約名「Mathematics」が選択されました．'
-        assert_includes output, '1件の競合を解消しました．'
-    end
-
     def test_execute_resolves_unmanaged_room_conflict_when_related_information_uses_managed_room
         unmanaged_information = lecture_room_management_information(
             room_name: 'Room C',
