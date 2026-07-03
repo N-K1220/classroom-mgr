@@ -1,4 +1,6 @@
 require 'rubyXL'
+require_relative 'academic_calendar_comment_date_parser'
+require_relative 'academic_calendar_comment'
 
 class AcademicCalendarCommentParser
   DAY_OF_THE_WEEK_SYMBOLS = {

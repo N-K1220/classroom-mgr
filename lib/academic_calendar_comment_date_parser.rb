@@ -1,4 +1,5 @@
 require 'date'
+require_relative 'academic_year_converter'
 
 class AcademicCalendarCommentDateParser
   def self.parse(date_string, academic_year, month)
@@ -35,11 +36,6 @@ class AcademicCalendarCommentDateParser
   end
   private_class_method :normalize
 
-  def self.calendar_year_for(academic_year, month)
-    month >= 4 ? academic_year : academic_year + 1
-  end
-  private_class_method :calendar_year_for
-
   # 例: "10/30,11/2"（両方に月あり）, "10/30,2"（2番目は日のみ、月は前の要素から引き継ぐ）
   def self.parse_slash_separated_dates(text, academic_year)
     return nil unless text.match(%r{\d+/\d+})
@@ -64,7 +60,7 @@ class AcademicCalendarCommentDateParser
 
       last_month = current_month
 
-      calendar_year = calendar_year_for(academic_year, current_month)
+      calendar_year = AcademicYearConverter.academic_year_and_month_to_calendar_year(academic_year, current_month)
       Date.new(calendar_year, current_month, day)
     end
 
@@ -86,8 +82,8 @@ class AcademicCalendarCommentDateParser
     # start_monthが省略されている場合、end_monthの前月とみなす
     start_month = start_month ? start_month.to_i : (end_month - 1 == 0 ? 12 : end_month - 1)
 
-    start_year = calendar_year_for(academic_year, start_month)
-    end_year = calendar_year_for(academic_year, end_month)
+    start_year = AcademicYearConverter.academic_year_and_month_to_calendar_year(academic_year, start_month)
+    end_year = AcademicYearConverter.academic_year_and_month_to_calendar_year(academic_year, end_month)
 
     start_date = Date.new(start_year, start_month, start_day)
     end_date = Date.new(end_year, end_month, end_day)
@@ -104,7 +100,7 @@ class AcademicCalendarCommentDateParser
 
     return nil if days.empty?
 
-    calendar_year = calendar_year_for(academic_year, month)
+    calendar_year = AcademicYearConverter.academic_year_and_month_to_calendar_year(academic_year, month)
     days.map { |day| Date.new(calendar_year, month, day) }
   end
   private_class_method :parse_comma_separated_days
@@ -118,7 +114,7 @@ class AcademicCalendarCommentDateParser
     start_day = match[1].to_i
     end_day = match[2].to_i
 
-    calendar_year = calendar_year_for(academic_year, month)
+    calendar_year = AcademicYearConverter.academic_year_and_month_to_calendar_year(academic_year, month)
 
     (start_day..end_day).map { |day| Date.new(calendar_year, month, day) }
   end
@@ -131,7 +127,7 @@ class AcademicCalendarCommentDateParser
     return nil if match.nil?
 
     day = match[1].to_i
-    calendar_year = calendar_year_for(academic_year, month)
+    calendar_year = AcademicYearConverter.academic_year_and_month_to_calendar_year(academic_year, month)
 
     [Date.new(calendar_year, month, day)]
   end

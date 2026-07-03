@@ -1,3 +1,5 @@
+require 'date'
+
 class AcademicCalendarComment < Data.define(:dates, :description, :day_of_the_week_changes, :is_public_holiday)
   def initialize(dates:, description:, day_of_the_week_changes:, is_public_holiday:)
     unless dates.is_a?(Array) && dates.all? { |date| date.is_a?(Date) }
