@@ -1,3 +1,5 @@
+require_relative 'command'
+require_relative 'lecture_room_management_information_factory'
 require_relative 'interactive_conflict_resolution_service'
 
 class CreateCommand
@@ -28,8 +30,8 @@ class CreateCommand
     unless interactive_menu.is_a?(InteractiveMenu)
       raise TypeError, 'interactive_menu must be a InteractiveMenu.'
     end
-    unless term.is_a?(Integer)
-      raise TypeError, 'term must be a Integer.'
+    unless (term.is_a?(Integer) && 1 <= term && term <= 4) || term.nil?
+      raise TypeError, 'term must be a Integer (1 ~ 4).'
     end
 
     @lecture_room_management_information_repository = lecture_room_management_information_repository
