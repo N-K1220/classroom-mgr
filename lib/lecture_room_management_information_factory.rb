@@ -74,10 +74,8 @@ class LectureRoomManagementInformationFactory
       raise TypeError, 'timetable_information must be a TimetableInformation.'
     end
     
-    # 講義室管理情報を作成すべき日付をもつ学年暦情報を抽出する．
     filtered_academic_calendar_informations = 
       @academic_calendar_informations.select do |academic_calendar_information|
-        # 学年暦情報の開講曜日が変更されている場合は，変更後の曜日を使用する．
         effective_day_of_the_week =
           if academic_calendar_information.day_attribute.day_of_the_week_changes != nil
             academic_calendar_information.day_attribute.day_of_the_week_changes
@@ -92,7 +90,6 @@ class LectureRoomManagementInformationFactory
         effective_day_of_the_week == timetable_information.day_of_the_week
       end
     
-    # 各学年暦情報から講義室管理情報を作成する．
     lecture_room_management_informations = []
     filtered_academic_calendar_informations.each do |information|
       timetable_information.room_names.each do |room_name|
@@ -125,7 +122,7 @@ class LectureRoomManagementInformationFactory
       end
     
     if filtered_academic_calendar_informations.length == 0
-      raise '該当するAcademicCalendarInformationが1つもありません．'
+      raise '該当するAcademicCalendarInformationがありません．'
     end
     if filtered_academic_calendar_informations.length > 1
       raise '該当するAcademicCalendarInformationが複数あります．'

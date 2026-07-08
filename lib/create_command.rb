@@ -6,7 +6,6 @@ require_relative "interactive_conflict_resolution_service"
 require_relative "lecture_room_management_information_factory"
 require_relative "reservation_information_repository"
 require_relative "timetable_information_repository"
-require_relative "error_handler"
 
 class CreateCommand < Command
   def initialize(
