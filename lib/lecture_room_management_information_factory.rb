@@ -19,7 +19,7 @@ class LectureRoomManagementInformationFactory
       raise TypeError, 'managed_lecture_room_informations must be a Array.'
     end
     unless (term.is_a?(Integer) && 1 <= term && term <= 4) || term.nil?
-      raise TypeError, 'term must be a Integer (1 ~ 4).'
+      raise TypeError, 'term must be nil or a Integer (1 ~ 4).'
     end
 
     @academic_calendar_informations = academic_calendar_informations
@@ -32,7 +32,6 @@ class LectureRoomManagementInformationFactory
   def create_from_timetable_informations
     lecture_room_management_informations = []
 
-    # 学期指定がある場合は，指定された学期の時間割情報のみを対象とする．
     target_timetable_informations =
       if @term.nil?
         @timetable_informations
@@ -42,7 +41,6 @@ class LectureRoomManagementInformationFactory
         end
       end
 
-    # 各時間割情報から講義室管理情報を作成する．
     target_timetable_informations.each do |timetable_information|
       lecture_room_management_informations +=
         create_from_timetable_information(timetable_information)

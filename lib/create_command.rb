@@ -36,8 +36,8 @@ class CreateCommand < Command
     unless interactive_menu.is_a?(InteractiveMenu)
       raise TypeError, 'interactive_menu must be a InteractiveMenu.'
     end
-    unless (term.is_a?(Integer) && 1 <= term && term <= 4) || term.nil?
-      raise TypeError, 'term must be a Integer (1 ~ 4).'
+    unless term.is_a?(Integer) || term.nil?
+      raise TypeError, 'term must be a Integer or nil.'
     end
 
     @lecture_room_management_information_repository = lecture_room_management_information_repository
@@ -50,6 +50,10 @@ class CreateCommand < Command
   end
 
   def execute
+    if (@term != nil && ![1, 2, 3, 4].include?(@term))
+      return CommandResult.new(false, false, 15)
+    end
+
     if (managed_lecture_room_informations = @managed_lecture_room_information_repository.find_all).empty?
       return CommandResult.new(false, false, 11)
     end
