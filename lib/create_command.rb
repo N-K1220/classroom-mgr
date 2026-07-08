@@ -84,7 +84,7 @@ class CreateCommand < Command
         @lecture_room_management_information_repository,
         @interactive_menu,
         @managed_lecture_room_information_repository
-    )
+      )
     interactive_conflict_resolution_service.execute
 
     puts "講義室管理情報の作成が完了しました．"

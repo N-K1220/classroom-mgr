@@ -31,7 +31,7 @@ class LectureRoomManagementInformationFactory
 
   def create_from_timetable_informations
     lecture_room_management_informations = []
-    
+
     target_timetable_informations =
       if @term.nil?
         @timetable_informations
@@ -62,6 +62,7 @@ class LectureRoomManagementInformationFactory
           info.term == @term
         end
       end
+
       lecture_room_management_informations += informations
     end
 
@@ -75,8 +76,18 @@ class LectureRoomManagementInformationFactory
     
     filtered_academic_calendar_informations = 
       @academic_calendar_informations.select do |academic_calendar_information|
-        academic_calendar_information.day_of_the_week == timetable_information.day_of_the_week &&
-        academic_calendar_information.term == timetable_information.term
+        effective_day_of_the_week =
+          if academic_calendar_information.day_attribute.day_of_the_week_changes != nil
+            academic_calendar_information.day_attribute.day_of_the_week_changes
+          else
+            academic_calendar_information.day_of_the_week
+          end
+
+        academic_calendar_information.term == timetable_information.term &&
+        academic_calendar_information.day_attribute.is_public_holiday == false &&
+        academic_calendar_information.day_attribute.is_holiday == false &&
+        academic_calendar_information.day_attribute.is_makeup_class == false &&
+        effective_day_of_the_week == timetable_information.day_of_the_week
       end
     
     lecture_room_management_informations = []
@@ -91,7 +102,7 @@ class LectureRoomManagementInformationFactory
             room_name: room_name,
             subject: timetable_information.subject,
             user: timetable_information.user,
-            comment: ""
+            comment: information.day_attribute.comments.nil? ? "" : information.day_attribute.comments.join("　")
           )
         )
       end
@@ -110,10 +121,9 @@ class LectureRoomManagementInformationFactory
         academic_calendar_information.date == reservation_information.date
       end
     
-    if filtered_academic_calendar_informations.empty?
-      return nil
+    if filtered_academic_calendar_informations.length == 0
+      raise '該当するAcademicCalendarInformationがありません．'
     end
-
     if filtered_academic_calendar_informations.length > 1
       raise '該当するAcademicCalendarInformationが複数あります．'
     end
@@ -131,7 +141,7 @@ class LectureRoomManagementInformationFactory
           room_name: room_name,
           subject: reservation_information.subject,
           user: reservation_information.user,
-          comment: ""
+          comment: filtered_academic_calendar_information.day_attribute.comments.nil? ? "" : filtered_academic_calendar_information.day_attribute.comments.join("　")
         )
       )
     end
