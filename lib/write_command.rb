@@ -78,3 +78,5 @@ class WriteCommand
       return CommandResult.new(false,true,0)
     end
   end
+
+  
