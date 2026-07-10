@@ -1,8 +1,10 @@
-require "optparse"
-require_relative "parsed_input"
-require_relative "error_handler"
+require 'optparse'
+require 'shellwords'
+require_relative 'parsed_input'
+require_relative 'error_handler'
 
 class InputParser
+    # コマンド名の定義
     COMMAND_NAMES = [
         "read",
         "select",
@@ -12,6 +14,16 @@ class InputParser
         "quit"
     ].freeze
 
+    # コマンドごとの引数の個数を定義
+    COMMAND_ARGUMENT_COUNTS = {
+        "read" => 1,
+        "select" => 0,
+        "create" => 0,
+        "print" => 0,
+        "write" => 1,
+        "quit" => 0
+    }.freeze
+
     def self.parse(input)
         # (1) inputが文字列であるか確認する
         unless input.is_a?(String)
@@ -19,7 +31,11 @@ class InputParser
         end
 
         option_parser = OptionParser.new # (2) OptionParserインスタンスを生成
-        tokens = input.split             # (3) 入力文字列を半角スペースで分割
+        begin
+            tokens = Shellwords.split(input) # (3) クォーテーションを考慮して入力文字列を分割
+        rescue ArgumentError
+            return ErrorHandler::ERROR_UNKNOWN_OPTION
+        end
         command_name = tokens.shift      # (4) 先頭要素からコマンド名を取得
         options = {}
 
@@ -46,7 +62,11 @@ class InputParser
             return ErrorHandler::ERROR_UNKNOWN_OPTION
         end
 
+        # 引数の個数を確認し，超過している場合はエラー番号を返却
         arguments = tokens
+        if arguments.length > COMMAND_ARGUMENT_COUNTS[command_name]
+            return ErrorHandler::ERROR_UNKNOWN_COMMAND
+        end
 
         # (7) ParsedInputインスタンスを生成して返却
         ParsedInput.new(command_name: command_name, options: options, arguments: arguments)
