@@ -60,8 +60,8 @@ class InputParser
         # (5) コマンドに応じてオプションを登録
         register_options(option_parser, command_name, options)
 
-        # 引用符付きの「-」始まりの値だけを一時的に置換する。
-        # 例: read "-2026" の -2026 をOptionParserにオプション扱いさせない。
+        # 引用符付きの「-」始まりの値だけを一時的に置換
+        # 例: read "-2026" の -2026 をOptionParserにオプション扱いしない
         quoted_token_values = {}
         tokens = parsed_tokens.each_with_index.map do |token, index|
             if token.quoted && token.value.start_with?("-")
