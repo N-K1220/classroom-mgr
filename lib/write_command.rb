@@ -1,5 +1,6 @@
 require_relative 'academic_calendar_information_repository'
 require_relative 'command_result'
+require_relative "error_handler"
 require_relative 'excel_data_exporter'
 require_relative 'lecture_room_management_information'
 require_relative 'lecture_room_management_table_builder'
@@ -20,6 +21,7 @@ class WriteCommand
       unless managed_lecture_room_information_repository.is_a?(ManagedLectureRoomInformationRepository)
         raise TypeError, 'managed_lecture_room_information_repository must be a ManagedLectureRoomInformationRepository.'
       end
+
       unless excel_data_exporter.is_a?(ExcelDataExporter)
         raise TypeError, 'excel_data_exporter must be an ExcelDataExporter.'
       end
@@ -44,21 +46,21 @@ class WriteCommand
       academic_calendar_information_list = @academic_calendar_information_repository.find_all
       
       if academic_calendar_information_list.size == 0
-        return CommandResult.new(false,false,16)
+        return CommandResult.new(false,false,ErrorHandler::ERROR_ACADEMIC_CALENDAR_NOT_LOADED)
       end
 
       file_name = @file_name
 
       if file_name.empty?
-        return CommandResult.new(false,false,17)
+        return CommandResult.new(false,false,ErrorHandler::ERROR_OUTPUT_FILE_NOT_SPECIFIED)
       end
 
       if file_name.match?(/[.\\\/:*?"<>|]/)
-        return CommandResult.new(false,false,22)
+        return CommandResult.new(false,false,ErrorHandler::ERROR_INVALID_FILENAME_CHARACTER)
       end
       
       if file_name.length > 256
-        return CommandResult.new(false,false,23)
+        return CommandResult.new(false,false,ErrorHandler::ERROR_FILENAME_TOO_LONG)
       end
 
       managed_lecture_room_information_list = @managed_lecture_room_information_repository.find_all
@@ -69,7 +71,7 @@ class WriteCommand
       )
 
       if lecture_room_management_information_list.size == 0
-        return CommandResult.new(false,false,16)
+        return CommandResult.new(false,false,ErrorHandler::ERROR_LECTURE_ROOM_MANAGEMENT_INFORMATION_NOT_FOUND)
       end
 
       table_builder = LectureRoomManagementTableBuilder.new
