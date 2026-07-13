@@ -40,9 +40,6 @@ class PrintCommand < Command
         return CommandResult.new(false, false, ErrorHandler::ERROR_INVALID_DATE_FORMAT)
       end
 
-      lecture_room_management_informations =
-        @lecture_room_management_information_repository.find_all
-
       # 講義室管理情報の年度を計算する．
       academic_year =
         AcademicYearConverter.date_to_academic_year(
