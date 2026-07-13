@@ -1,6 +1,7 @@
 require_relative 'academic_calendar_information_repository'
 require_relative 'command_result'
 require_relative 'excel_data_exporter'
+require_relative 'lecture_room_management_information'
 require_relative 'lecture_room_management_table_builder'
 require_relative 'lecture_room_management_table_populator'
 require_relative 'lecture_room_management_information_repository'
@@ -36,6 +37,7 @@ class WriteCommand
       @excel_data_exporter = excel_data_exporter
 
       @file_name = file_name
+
     end
 
     def execute
@@ -43,6 +45,20 @@ class WriteCommand
       
       if academic_calendar_information_list.size == 0
         return CommandResult.new(false,false,16)
+      end
+
+      file_name = @file_name
+
+      if file_name.empty?
+        return CommandResult.new(false,false,17)
+      end
+
+      if file_name.match?(/[.\\\/:*?"<>|]/)
+        return CommandResult.new(false,false,22)
+      end
+      
+      if file_name.length > 256
+        return CommandResult.new(false,false,23)
       end
 
       managed_lecture_room_information_list = @managed_lecture_room_information_repository.find_all
@@ -64,13 +80,13 @@ class WriteCommand
 
       lecture_room_management_workbook = table_populator.populate_entries(lecture_room_management_information_list)
 
-      @excel_data_exporter.export(lecture_room_management_workbook,@file_name)
+      @excel_data_exporter.export(lecture_room_management_workbook,file_name)
 
       puts "講義室管理一覧表の作成が完了しました．"
-
+      puts "出力先： output/#{@file_name}.xlsx"
       return CommandResult.new(false,true,0)
     end
-
+  
     private
 
     def select_managed_lecture_room_management_informations(
@@ -78,11 +94,36 @@ class WriteCommand
       managed_lecture_room_information_list
     )
       managed_room_names = managed_lecture_room_information_list.map do |information|
-        normalize_room_name(information.room_name)
+        [information.room_name, normalize_room_name(information.room_name)]
       end
 
-      lecture_room_management_information_list.select do |information|
-        managed_room_names.include?(normalize_room_name(information.room_name))
+      lecture_room_management_information_list.flat_map do |information|
+        if LectureRoomManagementInformation.full_lecture_room_name?(information.room_name)
+          expand_full_lecture_room_information(information, managed_room_names)
+        else
+          [information]
+        end
+      end.select do |information|
+        managed_room_names.any? do |_, normalized_room_name|
+          normalized_room_name == normalize_room_name(information.room_name)
+        end
+      end
+    end
+
+    def expand_full_lecture_room_information(lecture_room_management_information, managed_room_names)
+      managed_room_names.filter_map do |original_room_name, normalized_room_name|
+        next unless LectureRoomManagementInformation.lecture_room_name?(normalized_room_name)
+
+        LectureRoomManagementInformation.new(
+          date: lecture_room_management_information.date,
+          day_of_the_week: lecture_room_management_information.day_of_the_week,
+          term: lecture_room_management_information.term,
+          periods: lecture_room_management_information.periods,
+          room_name: original_room_name,
+          subject: lecture_room_management_information.subject,
+          user: lecture_room_management_information.user,
+          comment: lecture_room_management_information.comment
+        )
       end
     end
 
