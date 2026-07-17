@@ -14,13 +14,28 @@ class ExcelDataLoader
     xlsx_file = xlsx_files[0]
 
     begin
-      workbook = RubyXL::Parser.parse(xlsx_file)
+      workbook = with_exclusive_lock(xlsx_file) do
+        RubyXL::Parser.parse(xlsx_file)
+      end
     rescue Zip::Error => e
       raise InvalidExcelFileError, "#{xlsx_file} は有効なxlsxファイルではありません: #{e.message}"
     end
 
     return workbook
   end
+
+  def self.with_exclusive_lock(file_path)
+    File.open("#{file_path}.lock", 'a+b') do |lock_file|
+      lock_file.flock(File::LOCK_EX)
+
+      begin
+        yield
+      ensure
+        lock_file.flock(File::LOCK_UN)
+      end
+    end
+  end
+  private_class_method :with_exclusive_lock
 
   def self.load_academic_calendar_xlsx_file(directory_name)
     unless directory_name.is_a?(String)

@@ -18,6 +18,24 @@ class ExcelDataExporter
 
     FileUtils.mkdir_p(OUTPUT_DIRECTORY)
 
-    workbook.write(File.join(OUTPUT_DIRECTORY, "#{file_name}.xlsx"))
+    output_file_path = File.join(OUTPUT_DIRECTORY, "#{file_name}.xlsx")
+
+    with_exclusive_lock(output_file_path) do
+      workbook.write(output_file_path)
+    end
+  end
+
+  private
+
+  def with_exclusive_lock(file_path)
+    File.open("#{file_path}.lock", 'a+b') do |lock_file|
+      lock_file.flock(File::LOCK_EX)
+
+      begin
+        yield
+      ensure
+        lock_file.flock(File::LOCK_UN)
+      end
+    end
   end
 end
