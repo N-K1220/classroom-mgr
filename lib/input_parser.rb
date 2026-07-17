@@ -41,7 +41,7 @@ class InputParser
             parsed_tokens = split_with_quote_information(input)
         rescue ArgumentError
             # クォーテーションの閉じ忘れなど，入力文字列として解析できない場合
-            return ErrorHandler::ERROR_UNKNOWN_OPTION # TODO: 適切なエラー番号を返すように変更する
+            return ErrorHandler::ERROR_UNKNOWN_OPTION # TODO: エラー番号を追加し，変更
         end
         command_name = parsed_tokens.shift&.value # (4) 先頭要素からコマンド名を取得
         options = {}
@@ -89,7 +89,16 @@ class InputParser
         # 引数の個数を確認し，不足または超過している場合はエラー番号を返却
         arguments = tokens
         unless arguments.length == COMMAND_ARGUMENT_COUNTS[command_name]
-            return ErrorHandler::ERROR_UNKNOWN_COMMAND # TODO: 適切なエラー番号を返すように変更する
+            return ErrorHandler::ERROR_UNKNOWN_COMMAND # TODO: エラー番号を追加し，変更
+        end
+
+        # トークンの分類と個数確認後，値付きオプションと位置引数の実値を検証
+        # 引用符の有無にかかわらず，空文字または空白文字だけの値は無効
+        if options.values.any? { |value| blank_value?(value) }
+            return ErrorHandler::ERROR_UNKNOWN_OPTION
+        end
+        if arguments.any? { |argument| blank_value?(argument) }
+            return ErrorHandler::ERROR_UNKNOWN_COMMAND
         end
 
         # (7) ParsedInputインスタンスを生成して返却
@@ -150,6 +159,11 @@ class InputParser
         end
     end
 
+    # nil，空文字，空白文字だけで構成された値かを判定
+    def self.blank_value?(value)
+        value.nil? || value.strip.empty?
+    end
+
     # オプション引数を登録するメソッド
     def self.register_options(option_parser, command_name, options)
         case command_name
@@ -174,5 +188,6 @@ class InputParser
     private_constant :Token
     private_class_method :split_with_quote_information
     private_class_method :restore_quoted_token_values!
+    private_class_method :blank_value?
     private_class_method :register_options
 end
