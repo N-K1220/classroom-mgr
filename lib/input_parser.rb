@@ -161,7 +161,8 @@ class InputParser
 
     # nil，空文字，空白文字だけで構成された値かを判定
     def self.blank_value?(value)
-        value.nil? || value.strip.empty?
+        value.nil?
+        # value.nil? || value.strip.empty?
     end
 
     # オプション引数を登録するメソッド
