@@ -22,7 +22,9 @@ class ExcelDataLoader
     xlsx_file = ApplicationPath.existing_child_path(directory_path, File.basename(xlsx_file))
 
     begin
-      workbook = RubyXL::Parser.parse(xlsx_file)
+      workbook = with_exclusive_lock(xlsx_file) do
+        RubyXL::Parser.parse(xlsx_file)
+      end
     rescue Zip::Error => e
       raise InvalidExcelFileError, "#{xlsx_file} は有効なxlsxファイルではありません: #{e.message}"
     end
@@ -30,7 +32,24 @@ class ExcelDataLoader
     return workbook
   end
 
-  def self.load_academic_calendar_xlsx_file(directory_path)
+  def self.with_exclusive_lock(file_path)
+    File.open("#{file_path}.lock", 'a+b') do |lock_file|
+      lock_file.flock(File::LOCK_EX)
+
+      begin
+        yield
+      ensure
+        lock_file.flock(File::LOCK_UN)
+      end
+    end
+  end
+  private_class_method :with_exclusive_lock
+
+  def self.load_academic_calendar_xlsx_file(directory_name)
+    unless directory_name.is_a?(String)
+      raise TypeError, 'directory_name must be a String.'
+    end
+
     load_xlsx_file(ApplicationPath.existing_child_path(directory_path, '学年暦'))
   end
 
@@ -88,7 +107,9 @@ class ApplicationPath
       real_candidate = File.realpath(candidate)
       ensure_direct_child!(real_candidate, real_parent)
       real_candidate
-    rescue Errno::ENOENT, Errno::EACCES, Errno::ELOOP
+    rescue Errno::EACCES, Errno::EPERM
+      raise
+    rescue Errno::ENOENT, Errno::ELOOP
       raise InvalidPathError, 'input path cannot be resolved safely.'
     end
 
@@ -106,6 +127,8 @@ class ApplicationPath
       raise InvalidPathError, 'output file must not be a symbolic link.' if File.symlink?(candidate)
 
       candidate
+    rescue Errno::EACCES, Errno::EPERM, Errno::EROFS
+      raise
     rescue SystemCallError
       raise InvalidPathError, 'output directory cannot be prepared safely.'
     end
@@ -138,7 +161,9 @@ class ApplicationPath
       real_base = File.realpath(expanded_base)
       ensure_direct_child!(real_base, real_root)
       real_base
-    rescue Errno::ENOENT, Errno::EACCES, Errno::ELOOP
+    rescue Errno::EACCES, Errno::EPERM
+      raise
+    rescue Errno::ENOENT, Errno::ELOOP
       raise InvalidPathError, 'allowed directory cannot be resolved safely.'
     end
 
@@ -147,7 +172,9 @@ class ApplicationPath
       return unless File.exist?(candidate) || File.symlink?(candidate)
 
       ensure_direct_child!(File.realpath(candidate), File.realpath(base_directory))
-    rescue Errno::ENOENT, Errno::EACCES, Errno::ELOOP
+    rescue Errno::EACCES, Errno::EPERM
+      raise
+    rescue Errno::ENOENT, Errno::ELOOP
       raise InvalidPathError, 'path cannot be resolved safely.'
     end
 
