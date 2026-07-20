@@ -369,6 +369,31 @@ class AcademicCalendarParser
     is_day_of_the_week_change_border = !border_colors.nil? && border_colors == definition_border_colors.call(:day_of_the_week_change)
     is_makeup_class_border = !border_colors.nil? && border_colors == definition_border_colors.call(:makeup_class)
 
+    date_comments = comments[date]
+
+    # ==========================================
+    # 曜日変更の枠線と備考テキストの整合性チェック
+    # ==========================================
+    has_day_change_comment = false
+    if date_comments
+      has_day_change_comment = date_comments.any? { |c| !c.day_of_the_week_changes.nil? }
+    end
+
+    # 枠線があるのに，備考に記述がない
+    if is_day_of_the_week_change_border && !has_day_change_comment
+      raise ExcelParseError.new(
+        "A day of the week change border is set for #{date}, but no corresponding description is found in the comments.",
+        sheet: @worksheet.sheet_name
+      )
+    end
+
+    # 備考に変更の記述があるのに，カレンダーに枠線がない
+    if has_day_change_comment && !is_day_of_the_week_change_border
+      raise ExcelParseError.new(
+        "A day of the week change description exists in the comments for #{date}, but the corresponding border is not set on the calendar.",        sheet: @worksheet.sheet_name
+      )
+    end
+
     day_of_the_week_change = nil
     is_makeup_class = false
     is_exam_period = false
@@ -377,8 +402,6 @@ class AcademicCalendarParser
     comment_descriptions = nil
 
     is_holiday = background_color == cell_color_definitions[:holiday][:background_color]
-
-    date_comments = comments[date]
 
     unless date_comments.nil?
       if is_day_of_the_week_change_border
