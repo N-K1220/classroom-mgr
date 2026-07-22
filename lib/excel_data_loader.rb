@@ -22,9 +22,7 @@ class ExcelDataLoader
     xlsx_file = ApplicationPath.existing_child_path(directory_path, File.basename(xlsx_file))
 
     begin
-      workbook = with_exclusive_lock(xlsx_file) do
-        RubyXL::Parser.parse(xlsx_file)
-      end
+      workbook = load_with_exclusive_lock(xlsx_file)
     rescue Zip::Error => e
       raise InvalidExcelFileError, "#{xlsx_file} は有効なxlsxファイルではありません: #{e.message}"
     end
@@ -32,15 +30,25 @@ class ExcelDataLoader
     return workbook
   end
 
-  def self.with_exclusive_lock(file_path)
-    File.open("#{file_path}.lock", 'a+b') do |lock_file|
-      lock_file.flock(File::LOCK_EX)
+  def self.load_with_exclusive_lock(file_path)
+    file_contents = with_exclusive_lock(file_path, File::RDONLY) do |file|
+      file.binmode
+      file.read
+    end
 
-      begin
-        yield
-      ensure
-        lock_file.flock(File::LOCK_UN)
-      end
+    # rubyzipが渡されたIOを保持しないよう、閉じた実ファイルではなく文字列を解析する。
+    RubyXL::Parser.parse_buffer(file_contents)
+  end
+  private_class_method :load_with_exclusive_lock
+
+  def self.with_exclusive_lock(file_path, open_flags)
+    open_flags |= File::NOFOLLOW if File.const_defined?(:NOFOLLOW)
+
+    File.open(file_path, open_flags, 0o600) do |file|
+      file.flock(File::LOCK_EX)
+      yield file
+    ensure
+      file.flock(File::LOCK_UN)
     end
   end
   private_class_method :with_exclusive_lock

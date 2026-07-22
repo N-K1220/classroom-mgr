@@ -87,19 +87,19 @@ end
 begin
 case ARGV.first
 when 'hold-lock'
-  # 指定ファイルと同じ場所にある .lock ファイルをロックする。
+  # 指定されたExcelファイル自体をロックする。
   # この間に別の端末から同じファイルを read すると、ロック解除まで待機する。
   file_path = ARGV[1]
   seconds = Integer(ARGV.fetch(2, 30))
   abort usage unless File.file?(file_path)
 
-  File.open("#{file_path}.lock", 'a+b') do |lock_file|
+  File.open(file_path, 'r+b') do |file|
     begin
-      lock_file.flock(File::LOCK_EX)
+      file.flock(File::LOCK_EX)
       puts "Locked: #{file_path} (#{seconds} seconds)"
       sleep seconds
     ensure
-      lock_file.flock(File::LOCK_UN)
+      file.flock(File::LOCK_UN)
     end
   end
 when 'without-read'

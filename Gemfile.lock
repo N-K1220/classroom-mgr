@@ -4,6 +4,7 @@ GEM
     fiddle (1.1.8)
     minitest (6.0.0)
       prism (~> 1.5)
+    minitest-mock (5.27.0)
     nokogiri (1.19.4-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.19.4-x64-mingw-ucrt)
@@ -41,6 +42,7 @@ PLATFORMS
 DEPENDENCIES
   fiddle
   minitest
+  minitest-mock
   rubyXL
   tty-prompt
   unicode-display_width
