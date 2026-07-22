@@ -36,7 +36,11 @@ class SelectCommand < Command
     begin
       workbook = ExcelDataLoader.load_managed_lecture_room_xlsx_file
     rescue ExcelDataLoader::MultipleExcelFilesError
-      return CommandResult.new(false, false, ErrorHandler::ERROR_MANAGED_LECTURE_ROOM_PARSE_FAILED)
+      return CommandResult.new(
+        false,
+        false,
+        ErrorHandler::ERROR_MULTIPLE_MANAGED_LECTURE_ROOM_FILES_MESSAGE
+      )
     rescue ExcelDataLoader::InvalidExcelFileError
       return CommandResult.new(false, false, ErrorHandler::ERROR_MANAGED_LECTURE_ROOM_PARSE_FAILED)
     rescue Errno::ENOENT
@@ -81,9 +85,6 @@ class SelectCommand < Command
       "表示されている講義室を管理対象としますか？"
     )
     unless is_selected
-      @managed_lecture_room_information_repository.replace_all([])
-      @lecture_room_management_information_repository.replace_all([])
-
       return CommandResult.new(
         false,
         false,
