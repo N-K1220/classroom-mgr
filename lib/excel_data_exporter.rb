@@ -18,35 +18,35 @@ class ExcelDataExporter
       raise TypeError, 'file_name must be a String.'
     end
 
-    # 出力先を検証してから，同じパスをロックと書き込みの両方に使用する。
+    # 出力先を検証してから，Excelファイル自体をロックして書き込む。
     output_file_path = ApplicationPath.output_file_path(file_name, create_directory: true)
 
-    with_exclusive_lock(output_file_path) do
-      workbook.write(output_file_path)
-    end
+    write_with_exclusive_lock(workbook, output_file_path)
+  rescue Errno::ELOOP
+    raise ApplicationPath::InvalidPathError, 'output file must not be a symbolic link.'
   end
 
   private
 
-  def with_exclusive_lock(file_path)
-    lock_file_path = "#{file_path}.lock"
-    if File.symlink?(lock_file_path)
-      raise ApplicationPath::InvalidPathError, 'lock file must not be a symbolic link.'
+  def write_with_exclusive_lock(workbook, file_path)
+    # ファイルを空にする前にxlsx全体を生成し、生成失敗時は既存ファイルを維持する。
+    workbook_stream = workbook.stream
+
+    with_exclusive_lock(file_path, File::RDWR | File::CREAT) do |file|
+      file.rewind
+      file.truncate(0)
+      IO.copy_stream(workbook_stream, file)
     end
+  end
 
-    lock_open_flags = File::RDWR | File::CREAT
-    lock_open_flags |= File::NOFOLLOW if File.const_defined?(:NOFOLLOW)
+  def with_exclusive_lock(file_path, open_flags)
+    open_flags |= File::NOFOLLOW if File.const_defined?(:NOFOLLOW)
 
-    File.open(lock_file_path, lock_open_flags, 0o600) do |lock_file|
-      lock_file.flock(File::LOCK_EX)
-
-      begin
-        yield
-      ensure
-        lock_file.flock(File::LOCK_UN)
-      end
+    File.open(file_path, open_flags, 0o600) do |file|
+      file.flock(File::LOCK_EX)
+      yield file
+    ensure
+      file.flock(File::LOCK_UN)
     end
-  rescue Errno::ELOOP
-    raise ApplicationPath::InvalidPathError, 'lock file must not be a symbolic link.'
   end
 end
